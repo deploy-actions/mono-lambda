@@ -1,4 +1,4 @@
-name: AWS Mono Lambda Deploy Action ƛ
+name: AWS Mono Lambda Deploy Action
 description: GitHub Action to deploy AWS Lambda by CloudFormation
 branding:
   icon: upload-cloud
