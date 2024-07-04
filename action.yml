@@ -1,0 +1,111 @@
+name: AWS Mono Lambda Deploy Action ƛ
+description: GitHub Action to deploy AWS Lambda by CloudFormation
+branding:
+  icon: upload-cloud
+  color: orange
+
+inputs:
+  function-name:
+    description: Name of the Lambda function
+    required: true
+  image-uri:
+    description: Docker Image URI
+    required: true
+  architecture:
+    description: Architecture Type of Lambda function, one of x86_64, amd64
+    required: false
+    default: x86_64
+  memory-size:
+    description: Memory size for the Lambda function (in MB)
+    required: false
+    default: "1024"
+  ephemeral-storage-size:
+    description: Ephemeral storage size for the Lambda function (in MB)
+    required: false
+    default: "512"
+  timeout:
+    description: Timeout for the Lambda function (in seconds)
+    required: false
+    default: "10"
+  provisioned-concurrency:
+    description: Provisioned concurrency for the Lambda function
+    required: false
+    default: "0"
+  environment:
+    description: lambda function env, e.g. key1=value1\nkey2=value2\nkey=value3
+    required: false
+  host-mode:
+    description: Method to host Lambda, allow one of `NONE`, `CUSTOM_DOMAIN`, `FUNCTION_URL`(default)
+    required: false
+    default: FUNCTION_URL
+  domains:
+    description: custom domain list joined by "\n", when host mode set `CUSTOM_DOMAIN`, domain is required
+  hosted-zone-id:
+    description: Route53 HostedZoneId, when host mode set `CUSTOM_DOMAIN`, hosted-zone-id is required
+    required: false
+  certificate-arn:
+    description: acm certificate arn for custom domain, when host mode set `CUSTOM_DOMAIN`, certificate-arn is required
+    required: false
+
+runs:
+  using: composite
+
+  steps:
+    - shell: bash
+      run: aws sts get-caller-identity >/dev/null 2>&1
+
+    - id: env
+      shell: bash
+      run: |
+        if [ -z "$AWS_REGION" ]; then
+          echo "AWS_REGION=$AWS_DEFAULT_REGION" >> "$GITHUB_ENV"
+        fi
+        STACK_NAME="lambda-${{ inputs.function-name }}-$AWS_REGION"
+
+        echo "stack_name=$STACK_NAME" >> "$GITHUB_OUTPUT"
+        echo "path=$GITHUB_ACTION_PATH" >> "$GITHUB_OUTPUT"
+
+    - uses: actions/setup-node@main
+      with:
+        node-version: "20"
+
+    - shell: bash
+      run: node ${{ steps.env.outputs.path }}/index.js
+      env:
+        HOST_MODE: ${{ inputs.host-mode }}
+        ACM_CERTI_ARN: ${{ inputs.certificate-arn }}
+        HOSTED_ZONE_ID: ${{ inputs.hosted-zone-id }}
+        CUSTOM_DOMAINS: ${{ inputs.domains }}
+        LAMBDA_IMAGE_URI: ${{ inputs.image-uri }}
+        LAMBDA_ARCHITECTURE: ${{ inputs.architecture }}
+        LAMBDA_MEMORY_SIZE: ${{ inputs.memory-size }}
+        LAMBDA_STORAGE_SIZE: ${{ inputs.ephemeral-storage-size }}
+        LAMBDA_TIMEOUT: ${{ inputs.timeout }}
+        LAMBDA_PROVISIONED_CONCURRENCY: ${{ inputs.provisioned-concurrency }}
+        LAMBDA_ENV: ${{ inputs.environment }}
+
+    - id: lambda
+      uses: aws-actions/aws-cloudformation-github-deploy@master
+      with:
+        name: ${{ steps.env.outputs.stack_name }}
+        template: ${{ steps.env.outputs.path }}/template.json
+        capabilities: CAPABILITY_NAMED_IAM
+        no-fail-on-empty-changeset: "1"
+        parameter-overrides: FunctionName=${{ inputs.function-name }}
+
+    - id: output
+      shell: bash
+      run: |
+        if [ "${{ inputs.host-mode }}" == "FUNCTION_URL" ]; then
+          echo "url=$(aws lambda get-function-url-config --function-name ${{ inputs.function-name }} --query FunctionUrl --output text)" >> "$GITHUB_OUTPUT"
+        fi
+
+        if [ "${{ inputs.host-mode }}" == "CUSTOM_DOMAIN" ]; then
+          DOMAIN=&(echo "${{ inputs.domains }}" | head -n 1 | xargs)
+          echo "uri=$DOMAIN" >> "$GITHUB_OUTPUT"
+        fi
+
+outputs:
+  host:
+    description: Endpoint of Mono Lambda API
+    value: ${{ steps.output.outputs.url }}
