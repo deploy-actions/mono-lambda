@@ -1,4 +1,4 @@
-# AWS Mono Lambda Deploy Action
+# AWS Mono Lambda Deploy Action ƛ
 
 GitHub Action to deploy AWS Lambda by CloudFormation
 
