@@ -102,7 +102,7 @@ runs:
 
         if [ "${{ inputs.host-mode }}" == "CUSTOM_DOMAIN" ]; then
           DOMAIN=$(echo "${{ inputs.domains }}" | head -n 1 | xargs)
-          echo "url=$DOMAIN" >> "$GITHUB_OUTPUT"
+          echo "url=https://$DOMAIN" >> "$GITHUB_OUTPUT"
         fi
 
 outputs:
