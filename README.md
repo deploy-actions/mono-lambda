@@ -48,7 +48,7 @@ Provision AWS Lambda, as well as IAM Role, CloudFront, Route53 RecordSet, and mo
 | timeout                 | Timeout for the Lambda function (in seconds)             |           | 10           |
 | provisioned-concurrency | Provisioned concurrency for the Lambda function          |           | 0            |
 | environment             | Lambda Function Environment["Variables"]                 |           |              |
-| host-mode               | Method of Hosting Lambda Endpoint (NONE or FUNCTION_URL) |           | function-url |
+| host-mode               | Method of Hosting Lambda Endpoint (NONE or FUNCTION_URL) |           | FUNCTION_URL |
 
 ## Additional Inputs for CUSTOM_DOMAIN mode
 
