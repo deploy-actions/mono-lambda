@@ -8,6 +8,9 @@ inputs:
   function-name:
     description: Name of the Lambda function
     required: true
+  role-policy:
+    description: Lambda Execution Role additional Policy, only json format
+    required: false
   image-uri:
     description: Docker Image URI
     required: true
@@ -83,6 +86,7 @@ runs:
         LAMBDA_TIMEOUT: ${{ inputs.timeout }}
         LAMBDA_PROVISIONED_CONCURRENCY: ${{ inputs.provisioned-concurrency }}
         LAMBDA_ENV: ${{ inputs.environment }}
+        LAMBDA_POLICY: ${{ inputs.role-policy }}
 
     - id: lambda
       uses: aws-actions/aws-cloudformation-github-deploy@master
