@@ -29,9 +29,10 @@ Provision AWS Lambda, as well as IAM Role, CloudFront, Route53 RecordSet, and mo
       api.example.com
       doc.example.com
     environment: |
-      NODE_ENV=production
-      DATABASE_URL=postgresql://admin@localhost:5432/simple-api
-      test=test
+      {
+        "NODE_ENV": "production",
+        "DB_HOST": "{{resolve:secretsmanager:MySecret:SecretString:DB_HOST}}"
+      }
 
 - run: echo "${{ steps.lambda.outputs.host }}" // www.example.com
 ```
@@ -42,13 +43,14 @@ Provision AWS Lambda, as well as IAM Role, CloudFront, Route53 RecordSet, and mo
 | ----------------------- | -------------------------------------------------------- | --------- | ------------ |
 | function-name           | Name of Lambda Function                                  | ✅        |              |
 | image-uri               | Docker Image URI                                         | ✅        |              |
+| role-policy             | Lambda ExecutionRole Policy                              |           |              |
 | architecture            | Architecture for the Lambda function (x86_64 or arm64)   |           | x86_64       |
 | memory-size             | Memory size for the Lambda function (in MB)              |           | 1024         |
 | ephemeral-storage-size  | Ephemeral storage size for the Lambda function (in MB)   |           | 512          |
 | timeout                 | Timeout for the Lambda function (in seconds)             |           | 10           |
 | provisioned-concurrency | Provisioned concurrency for the Lambda function          |           | 0            |
 | environment             | Lambda Function Environment["Variables"]                 |           |              |
-| host-mode               | Method of Hosting Lambda Endpoint (NONE or FUNCTION_URL) |           | function-url |
+| host-mode               | Method of Hosting Lambda Endpoint (NONE or FUNCTION_URL) |           | FUNCTION_URL |
 
 ## Additional Inputs for CUSTOM_DOMAIN mode
 
