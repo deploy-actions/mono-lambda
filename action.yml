@@ -35,7 +35,7 @@ inputs:
     required: false
     default: "0"
   environment:
-    description: lambda function env, e.g. key1=value1\nkey2=value2\nkey=value3
+    description: value of AWS::Lambda::Function Environment["Variables"], https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-lambda-function-environment.html#cfn-lambda-function-environment-variables
     required: false
   host-mode:
     description: Method to host Lambda, allow one of `NONE`, `CUSTOM_DOMAIN`, `FUNCTION_URL`(default)
