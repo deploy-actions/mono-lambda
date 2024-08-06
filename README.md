@@ -51,6 +51,9 @@ Provision AWS Lambda, as well as IAM Role, CloudFront, Route53 RecordSet, and mo
 | provisioned-concurrency | Provisioned concurrency for the Lambda function          |           | 0            |
 | environment             | Lambda Function Environment["Variables"]                 |           |              |
 | host-mode               | Method of Hosting Lambda Endpoint (NONE or FUNCTION_URL) |           | FUNCTION_URL |
+| vpc-mode                | Lambda VPC config (NONE or DUAL or SINGLE)               |           | NONE         |
+| security-group-ids      | A list of VPC security group IDs, joined by whitespace   |           |              |
+| subnet-ids              | A list of VPC subnet IDs, joined by whitespace           |           |              |
 
 ## Additional Inputs for CUSTOM_DOMAIN mode
 

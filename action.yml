@@ -37,6 +37,16 @@ inputs:
   environment:
     description: value of AWS::Lambda::Function Environment["Variables"], https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-lambda-function-environment.html#cfn-lambda-function-environment-variables
     required: false
+  vpc-mode:
+    description: Lambda VPC config. if DUAL mode, connected to dual-stack subnets. default is NONE
+    required: false
+    default: "NONE"
+  security-group-ids:
+    description: A list of VPC security group IDs.
+    required: false
+  subnet-ids:
+    description: A list of VPC subnet IDs.
+    required: false
   host-mode:
     description: Method to host Lambda, allow one of `NONE`, `CUSTOM_DOMAIN`, `FUNCTION_URL`(default)
     required: false
@@ -87,6 +97,9 @@ runs:
         LAMBDA_PROVISIONED_CONCURRENCY: ${{ inputs.provisioned-concurrency }}
         LAMBDA_ENV: ${{ inputs.environment }}
         LAMBDA_POLICY: ${{ inputs.role-policy }}
+        LAMBDA_VPC: ${{ inputs.vpc-mode }}
+        SG_IDS: ${{ inputs.security-group-ids }}
+        SUBNET_IDS: ${{ inputs.subnet-ids }}
 
     - id: lambda
       uses: aws-actions/aws-cloudformation-github-deploy@master
